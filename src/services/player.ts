@@ -304,6 +304,28 @@ export default class {
   }
 
   async forward(skip: number): Promise<void> {
+    // Check if we can move forward in the queue
+    if (!this.canGoForward(skip)) {
+      // Queue is empty, set status to IDLE and start disconnect timer
+      this.status = STATUS.IDLE;
+      this.audioPlayer?.stop(true);
+
+      const settings = await getGuildSettings(this.guildId);
+
+      const {secondsToWaitAfterQueueEmpties} = settings;
+      if (secondsToWaitAfterQueueEmpties !== 0) {
+        this.disconnectTimer = setTimeout(() => {
+          // Make sure we are not accidentally playing
+          // when disconnecting
+          if (this.status === STATUS.IDLE) {
+            this.disconnect();
+          }
+        }, secondsToWaitAfterQueueEmpties * 1000);
+      }
+
+      return;
+    }
+
     this.manualForward(skip);
 
     try {
