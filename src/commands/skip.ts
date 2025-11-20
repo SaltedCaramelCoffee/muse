@@ -34,8 +34,11 @@ export default class implements Command {
     const player = this.playerManager.get(interaction.guild!.id);
 
     try {
-      await player.forward(numToSkip);
-      await interaction.reply({
+      await Promise.all([
+        player.forward(numToSkip),
+        interaction.deferReply(),
+      ]);
+      await interaction.editReply({
         content: 'keep \'er movin\'',
         embeds: player.getCurrent() ? [buildPlayingMessageEmbed(player)] : [],
       });
