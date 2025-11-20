@@ -98,11 +98,11 @@ export default class {
       const {statusCode} = error as {statusCode: number};
 
       if (statusCode === 403) {
-        return new Error(`Unable to access Spotify ${resourceType}. This may be due to geographic restrictions, private content, or API rate limiting. Please try again later or use a different ${resourceType}.`);
+        return new Error(`Unable to access Spotify ${resourceType}. This may be due to geographic restrictions, private content, or API rate limiting. Please try again later.`);
       }
 
       if (statusCode === 404) {
-        return new Error(`Spotify ${resourceType} not found. The ${resourceType} may have been deleted or the link is incorrect.`);
+        return new Error(`Spotify ${resourceType} not found. Please check the link and try again.`);
       }
 
       if (statusCode === 401) {
