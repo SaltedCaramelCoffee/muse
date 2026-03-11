@@ -218,7 +218,7 @@ export default class {
 
     // Cancel any pending idle disconnection
     if (this.disconnectTimer) {
-      clearInterval(this.disconnectTimer);
+      clearTimeout(this.disconnectTimer);
       this.disconnectTimer = null;
     }
 
