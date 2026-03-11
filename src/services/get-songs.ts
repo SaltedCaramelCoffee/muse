@@ -85,6 +85,12 @@ export default class {
         throw err;
       }
 
+      // Re-throw errors from Spotify API calls — don't silently fall back to a
+      // YouTube search when the user provided a valid Spotify URL that failed.
+      if (query.startsWith('https://open.spotify.com') || query.startsWith('spotify:')) {
+        throw err;
+      }
+
       // Not a URL, must search YouTube
       const songs = await this.youtubeVideoSearch(query, shouldSplitChapters);
 
