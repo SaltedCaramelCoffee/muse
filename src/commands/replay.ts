@@ -32,10 +32,8 @@ export default class implements Command {
       throw new Error('can\'t replay a livestream');
     }
 
-    await Promise.all([
-      player.seek(0),
-      interaction.deferReply(),
-    ]);
+    await interaction.deferReply();
+    await player.seek(0);
 
     await interaction.editReply('👍 replayed the current song');
   }
