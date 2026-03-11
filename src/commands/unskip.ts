@@ -24,8 +24,9 @@ export default class implements Command {
     const player = this.playerManager.get(interaction.guild!.id);
 
     try {
+      await interaction.deferReply();
       await player.back();
-      await interaction.reply({
+      await interaction.editReply({
         content: 'back \'er up\'',
         embeds: player.getCurrent() ? [buildPlayingMessageEmbed(player)] : [],
       });

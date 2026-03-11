@@ -53,10 +53,8 @@ export default class implements Command {
       throw new Error('can\'t seek past the end of the song');
     }
 
-    await Promise.all([
-      player.seek(seekTime),
-      interaction.deferReply(),
-    ]);
+    await interaction.deferReply();
+    await player.seek(seekTime);
 
     await interaction.editReply(`👍 seeked to ${prettyTime(player.getPosition())}`);
   }

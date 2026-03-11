@@ -34,10 +34,11 @@ export default class implements Command {
       throw new Error('nothing to play');
     }
 
+    await interaction.deferReply();
     await player.connect(targetVoiceChannel);
     await player.play();
 
-    await interaction.reply({
+    await interaction.editReply({
       content: 'the stop-and-go light is now green',
       embeds: [buildPlayingMessageEmbed(player)],
     });
