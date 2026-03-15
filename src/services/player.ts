@@ -218,7 +218,7 @@ export default class {
 
     // Cancel any pending idle disconnection
     if (this.disconnectTimer) {
-      clearInterval(this.disconnectTimer);
+      clearTimeout(this.disconnectTimer);
       this.disconnectTimer = null;
     }
 
@@ -304,27 +304,20 @@ export default class {
   }
 
   async forward(skip: number): Promise<void> {
+    // Check if we can move forward in the queue
+    if (!this.canGoForward(skip)) {
+      // Queue is empty, schedule idle disconnect
+      await this.scheduleIdleDisconnect();
+      return;
+    }
+
     this.manualForward(skip);
 
     try {
       if (this.getCurrent() && this.status !== STATUS.PAUSED) {
         await this.play();
       } else {
-        this.status = STATUS.IDLE;
-        this.audioPlayer?.stop(true);
-
-        const settings = await getGuildSettings(this.guildId);
-
-        const {secondsToWaitAfterQueueEmpties} = settings;
-        if (secondsToWaitAfterQueueEmpties !== 0) {
-          this.disconnectTimer = setTimeout(() => {
-            // Make sure we are not accidentally playing
-            // when disconnecting
-            if (this.status === STATUS.IDLE) {
-              this.disconnect();
-            }
-          }, secondsToWaitAfterQueueEmpties * 1000);
-        }
+        await this.scheduleIdleDisconnect();
       }
     } catch (error: unknown) {
       this.queuePosition--;
@@ -704,6 +697,30 @@ export default class {
   private stopTrackingPosition(): void {
     if (this.playPositionInterval) {
       clearInterval(this.playPositionInterval);
+    }
+  }
+
+  private async scheduleIdleDisconnect(): Promise<void> {
+    // Clear any existing disconnect timer
+    if (this.disconnectTimer) {
+      clearTimeout(this.disconnectTimer);
+      this.disconnectTimer = null;
+    }
+
+    this.status = STATUS.IDLE;
+    this.audioPlayer?.stop(true);
+
+    const settings = await getGuildSettings(this.guildId);
+
+    const {secondsToWaitAfterQueueEmpties} = settings;
+    if (secondsToWaitAfterQueueEmpties !== 0) {
+      this.disconnectTimer = setTimeout(() => {
+        // Make sure we are not accidentally playing
+        // when disconnecting
+        if (this.status === STATUS.IDLE) {
+          this.disconnect();
+        }
+      }, secondsToWaitAfterQueueEmpties * 1000);
     }
   }
 
